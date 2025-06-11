@@ -11,6 +11,16 @@ interface ImageGalleryProps {
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [currentImage, setCurrentImage] = useState(0)
 
+  if (!images || images.length === 0) {
+    return (
+      <div className="relative aspect-[16/9] overflow-hidden rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <p className="text-gray-500 dark:text-gray-400">No hay imágenes disponibles.</p>
+        {/* Optionally, display a placeholder image */}
+        {/* <Image src="/placeholder.jpg" alt="No image available" fill className="object-cover" /> */}
+      </div>
+    );
+  }
+
   const nextImage = () => {
     setCurrentImage((prev) => (prev + 1) % images.length)
   }

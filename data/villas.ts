@@ -1,37 +1,37 @@
+import villasData from '../villas.json';
+
 export interface Villa {
   id: string;
   title: string;
   description: string;
-  location: string;
+  location: string; // This field is not in villas.json, will be empty or a default value
   coverImage: string;
   images: string[];
   services: string[];
   fullDescription: string;
 }
 
-export const villas: Villa[] = [
-  {
-    id: 'villa-neptuno',
-    title: 'VILLA NEPTUNO',
-    description: 'Maravillosa Villa con vistas al mar',
-    location: 'Tossa de Mar',
-    coverImage: '/images/villas/neptuno/cover.jpg',
-    images: [
-      '/images/villas/neptuno/1.jpg',
-      '/images/villas/neptuno/2.jpg',
-      '/images/villas/neptuno/3.jpg',
-    ],
-    services: [
-      'Piscina privada',
-      'Jardín',
-      'WiFi',
-      'Aire acondicionado',
-      'Parking'
-    ],
-    fullDescription: 'Maravillosa Villa, situada en la preciosa localidad de Tossa de Mar. Ubicada en paraje idílico junto al mar...'
-  },
-  // Añadir más villas aquí...
-]
+const processedVillas: Villa[] = villasData.map((villa) => {
+  const id = villa.title.toLowerCase().replace(/\s+/g, '-');
+  const coverImage = villa.images.length > 0 ? `/${villa.images[0]}` : '/placeholder.jpg'; // Added placeholder for empty images
+  const images = villa.images.map(image => `/${image}`);
+  const services = villa.services.split(',').map(service => service.trim());
+  const fullDescription = villa.description;
+  const description = fullDescription.length > 50 ? `${fullDescription.substring(0, 50)}...` : fullDescription;
+
+  return {
+    id,
+    title: villa.title,
+    description,
+    location: '', // Set location to empty string as it's not in villas.json
+    coverImage,
+    images,
+    services,
+    fullDescription,
+  };
+});
+
+export const villas: Villa[] = processedVillas;
 
 export function getVilla(id: string): Villa | undefined {
   return villas.find(villa => villa.id === id);
