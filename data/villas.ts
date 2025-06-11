@@ -11,7 +11,7 @@ export interface Villa {
 
 export const villas: Villa[] = [
   {
-    id: 'neptuno',
+    id: 'villa-neptuno',
     title: 'VILLA NEPTUNO',
     description: 'Maravillosa Villa con vistas al mar',
     location: 'Tossa de Mar',
@@ -20,7 +20,6 @@ export const villas: Villa[] = [
       '/images/villas/neptuno/1.jpg',
       '/images/villas/neptuno/2.jpg',
       '/images/villas/neptuno/3.jpg',
-      // Añade más imágenes según necesites
     ],
     services: [
       'Piscina privada',
@@ -30,9 +29,9 @@ export const villas: Villa[] = [
       'Parking'
     ],
     fullDescription: 'Maravillosa Villa, situada en la preciosa localidad de Tossa de Mar. Ubicada en paraje idílico junto al mar...'
-  }
-  // Puedes añadir más villas aquí
-];
+  },
+  // Añadir más villas aquí...
+]
 
 export function getVilla(id: string): Villa | undefined {
   return villas.find(villa => villa.id === id);
