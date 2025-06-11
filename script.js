@@ -57,6 +57,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // NO IMAGE ELEMENTS OR PLACEHOLDERS
 
+            // Image Container
+            if (villa.images && villa.images.length > 0) {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'villa-image-container';
+                villa.images.forEach(imagePath => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imagePath;
+                    imgElement.alt = `Imagen de ${villa.title}`; // More descriptive alt text
+                    imageContainer.appendChild(imgElement);
+                });
+                card.appendChild(imageContainer);
+            }
+
             // WhatsApp Button
             const whatsappButton = document.createElement('a');
             whatsappButton.className = 'whatsapp-button';

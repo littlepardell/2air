@@ -119,3 +119,26 @@ header {
         grid-template-columns: repeat(4, 1fr); /* 4 columns for wider desktops */
     }
 }
+
+/* Styling for the container of villa images */
+.villa-image-container {
+    display: flex; /* Use flexbox to arrange images */
+    flex-wrap: wrap; /* Allow images to wrap to the next line */
+    gap: 10px; /* Space between images */
+    margin-top: 15px; /* Space above the image container */
+}
+
+/* Styling for individual villa images */
+.villa-card img {
+    max-width: 100%; /* Make images responsive, not exceeding card width */
+    height: auto;   /* Maintain aspect ratio */
+    border-radius: 8px; /* Slightly rounded corners for images */
+    object-fit: cover; /* Cover the area, cropping if necessary, good for uniform look */
+}
+
+/* Optional: If you want to control the size of images more directly in the flex container */
+.villa-image-container img {
+    flex-basis: calc(50% - 5px); /* Example: Aim for two images per row, adjusting for gap */
+    /* If you want all images to be smaller, you could use a fixed max-width or max-height here too */
+    /* max-height: 200px; */ /* Example to control height */
+}
