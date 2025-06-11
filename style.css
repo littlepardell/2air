@@ -1,8 +1,8 @@
 /* General Styles */
 body {
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0; /* Views will manage their own padding */
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
@@ -15,6 +15,10 @@ body {
     --button-bg-color: #007bff;
     --button-text-color: #ffffff;
     --border-color: #eeeeee;
+    --modal-content-bg: #ffffff;
+    --modal-close-color: #333333;
+    --modal-nav-button-bg: rgba(0,0,0,0.5);
+    --modal-nav-button-color: #ffffff;
 }
 
 body.dark-mode {
@@ -23,12 +27,18 @@ body.dark-mode {
     --card-bg-color: #2c2c2c;
     --button-bg-color: #0056b3;
     --border-color: #444444;
+    --modal-content-bg: #2c2c2c;
+    --modal-close-color: #f0f0f0;
+    --modal-nav-button-bg: rgba(255,255,255,0.3);
+    --modal-nav-button-color: #1a1a1a;
 }
 
 header {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 20px;
+    padding: 15px 20px;
+    background-color: var(--card-bg-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 #theme-toggle {
@@ -45,100 +55,400 @@ header {
     opacity: 0.9;
 }
 
-/* Villa Card Styles */
-#villa-container {
+/* View Styling */
+.view {
+    display: none; /* Hidden by default */
+    padding: 0; /* Specific content containers within views will manage padding */
+    box-sizing: border-box;
+}
+
+.active-view {
+    display: block;
+}
+
+/* Optional: Container for centering content within views */
+.container { /* This class is not actively used by script.js yet, but good for future */
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Main View Grid (Airbnb-like) */
+.villa-grid-airbnb {
     display: grid;
-    grid-template-columns: 1fr; /* Default to 1 column for mobile */
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 25px; /* Space between cards */
+    padding: 20px; /* Padding around the grid itself */
 }
 
-.villa-card {
+.villa-card-airbnb {
     background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
-.villa-card h2 {
+.villa-card-airbnb:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.card-image-airbnb {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content-airbnb {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title-airbnb {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: var(--text-color);
     margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.card-description-airbnb {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
+    line-height: 1.5;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+@media (max-width: 360px) {
+    .villa-grid-airbnb {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+    .card-image-airbnb {
+        height: 180px;
+    }
+}
+
+/* Detail View Styling */
+.detail-content-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.back-button-airbnb {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    padding: 10px 18px;
+    font-size: 0.95em;
+    margin-bottom: 25px;
+    /* Inherits .button styles like border-radius, font-weight, etc. */
+}
+.back-button-airbnb:hover {
+    opacity: 0.85;
+}
+
+.detail-title-airbnb {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.detail-gallery-airbnb {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    /* A more structured grid for up to 5 images might be:
+       grid-template-columns: repeat(3, 1fr); or use flexbox for more control.
+       For now, auto-fill will create a somewhat responsive row.
+    */
+    gap: 10px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.gallery-image-wrapper { /* Wrapper for each gallery image, helps with grid if needed */
+    overflow: hidden; /* Ensures border-radius on img is respected if wrapper is grid item */
+    border-radius: 8px;
+}
+/* If .gallery-image-main is used to make the first image larger: */
+/* .gallery-image-wrapper.gallery-image-main { grid-column: span 2; grid-row: span 2; height: auto; } */
+/* .gallery-image-wrapper.gallery-image-main .gallery-image-airbnb { height: 100%; } */
+
+
+.gallery-image-airbnb {
+    width: 100%;
+    height: 150px; /* Default height for gallery thumbnails */
+    object-fit: cover;
+    border-radius: 8px; /* Apply to image itself if not using wrapper for overflow:hidden */
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    display: block; /* Remove any extra space below image if it's inline */
+}
+.gallery-image-airbnb:hover {
+    opacity: 0.8;
+    transform: scale(1.03);
+}
+
+.show-all-photos-container {
+    grid-column: 1 / -1; /* Make it span full width of the grid */
+    text-align: center; /* Center the button if it's inline-block */
+    margin-top: 10px;
+}
+.show-all-photos-button {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    /* Inherits .button styles */
+}
+.show-all-photos-button:hover {
+    background-color: var(--border-color);
+}
+
+.detail-description-airbnb {
+    font-size: 1.1em;
+    line-height: 1.7;
+    color: var(--text-color);
+    margin-bottom: 30px;
+}
+
+.detail-services-airbnb {
+    margin-bottom: 30px;
+    background-color: var(--card-bg-color);
+    padding: 25px; /* More padding for section feel */
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.detail-services-airbnb h3 { /* Overrides generic .services-container h3 if needed, or use more specific selector */
     font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 20px; /* More space below title */
     color: var(--text-color);
 }
+/* .services-list and .services-list li are reused from common styles */
 
-.villa-card p {
-    font-size: 1em;
-    line-height: 1.6;
-    margin-bottom: 10px;
-}
 
-.villa-card .services {
-    font-size: 0.9em;
-    color: var(--text-color); /* Ensure services text is also themed */
-    opacity: 0.8;
-}
-
-.whatsapp-button {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #25D366; /* WhatsApp Green */
-    color: white;
+.whatsapp-button-airbnb { /* This is an <a> tag styled as a button */
+    padding: 15px 25px;
+    font-size: 1.1em;
+    background-color: #25D366; /* Specific WhatsApp green */
+    color: white !important; /* Ensure text is white, overriding generic .button if needed */
     text-decoration: none;
-    border-radius: 5px;
+    /* Inherits .button styles like border-radius, font-weight, text-align, etc. */
+}
+.whatsapp-button-airbnb:hover {
+    background-color: #1DAE50; /* Darker green on hover */
+    opacity: 1; /* Reset opacity from generic .button:hover if any */
+}
+
+
+/* Responsive adjustments for Detail View */
+@media (max-width: 768px) {
+    .detail-title-airbnb {
+        font-size: 2em;
+    }
+    .detail-description-airbnb {
+        font-size: 1em;
+    }
+    .detail-gallery-airbnb {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    .gallery-image-airbnb {
+        height: 120px;
+    }
+    .detail-services-airbnb {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .detail-content-wrapper {
+        padding: 15px;
+    }
+    .detail-title-airbnb {
+        font-size: 1.75em;
+    }
+    .detail-gallery-airbnb {
+        gap: 5px;
+        grid-template-columns: repeat(2, 1fr); /* Fixed 2 columns for small screens for a bit more structure */
+    }
+    .gallery-image-airbnb {
+        height: 100px;
+        border-radius: 4px;
+    }
+    .gallery-image-wrapper {
+        border-radius: 4px;
+    }
+    .back-button-airbnb,
+    .whatsapp-button-airbnb,
+    .show-all-photos-button { /* Target all buttons in detail view on small screens */
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+    .whatsapp-button-airbnb { margin-bottom: 0; } /* Last button, no bottom margin */
+}
+
+
+/* Common button styling (Kept from previous version, seems generally useful) */
+.button {
+    display: inline-block;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
     font-weight: bold;
+    cursor: pointer;
     text-align: center;
+    margin-top: 10px;
+    margin-right: 10px;
+    transition: background-color 0.2s, opacity 0.2s;
+    font-size: 0.95em;
+}
+
+.button:last-child {
+    margin-right: 0;
+}
+
+.view-gallery-button { /* This class was used for the old gallery button, might be removed if not used */
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+}
+
+.view-gallery-button:hover {
+    opacity: 0.85;
+}
+
+.whatsapp-button { /* Specific styling for WhatsApp button in main view cards (Kept) */
+    background-color: #25D366;
+    color: white;
 }
 
 .whatsapp-button:hover {
-    background-color: #1DAE50; /* Darker WhatsApp Green */
+    background-color: #1DAE50;
 }
 
-
-/* Responsive Design */
-/* Tablets */
-@media (min-width: 768px) {
-    #villa-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
-    }
+/* Services styling (Kept, as it's likely to be reused in detail view) */
+.services-container { /* This class is used by script.js for the services block in main view cards */
+    margin-top: 10px;
+    margin-bottom: 15px;
 }
 
-/* Desktops */
-@media (min-width: 1024px) {
-    #villa-container {
-        grid-template-columns: repeat(3, 1fr); /* 3 columns for desktops */
-    }
-    body {
-        padding: 40px;
-    }
+.services-container h3 { /* For main view cards */
+    margin-bottom: 8px;
+    font-size: 1.2em; /* Was 1.2em, keeping for card context */
+    font-weight: bold;
+    color: var(--text-color);
 }
 
-/* Wider Desktops */
-@media (min-width: 1440px) {
-    #villa-container {
-        grid-template-columns: repeat(4, 1fr); /* 4 columns for wider desktops */
-    }
+.services-list { /* Common for both main view cards and detail view */
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 5px;
+    color: var(--text-color);
 }
 
-/* Styling for the container of villa images */
-.villa-image-container {
-    display: flex; /* Use flexbox to arrange images */
-    flex-wrap: wrap; /* Allow images to wrap to the next line */
-    gap: 10px; /* Space between images */
-    margin-top: 15px; /* Space above the image container */
+.services-list li { /* Common for both */
+    padding: 5px 0;
+    font-size: 0.95em;
 }
 
-/* Styling for individual villa images */
-.villa-card img {
-    max-width: 100%; /* Make images responsive, not exceeding card width */
-    height: auto;   /* Maintain aspect ratio */
-    border-radius: 8px; /* Slightly rounded corners for images */
-    object-fit: cover; /* Cover the area, cropping if necessary, good for uniform look */
+/* Modal Styling (Kept) */
+#modalOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-/* Optional: If you want to control the size of images more directly in the flex container */
-.villa-image-container img {
-    flex-basis: calc(50% - 5px); /* Example: Aim for two images per row, adjusting for gap */
-    /* If you want all images to be smaller, you could use a fixed max-width or max-height here too */
-    /* max-height: 200px; */ /* Example to control height */
+#modalContent {
+    position: relative;
+    background-color: var(--modal-content-bg);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+#modalImage {
+    max-width: 100%;
+    max-height: calc(90vh - 120px);
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    color: var(--modal-close-color);
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.modal-close-button:hover {
+    color: #ff0000;
+}
+
+.modal-prev-button,
+.modal-next-button {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--modal-nav-button-bg);
+    color: var(--modal-nav-button-color);
+    padding: 12px 18px;
+    font-size: 24px;
+    border: none;
+    user-select: none;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    z-index: 1001;
+}
+
+.modal-prev-button {
+    left: 15px;
+}
+
+.modal-next-button {
+    right: 15px;
+}
+
+.modal-prev-button:hover,
+.modal-next-button:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+body.dark-mode .modal-prev-button:hover,
+body.dark-mode .modal-next-button:hover {
+    background-color: rgba(255,255,255,0.5);
 }
