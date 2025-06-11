@@ -1,0 +1,22 @@
+[
+  {
+    "title": "VILLA ANGLADA",
+    "description": "Preciosa Villa con vistas al mar, consta de 2 plantas con capacidad para 4 personas. Ubicada en una tranquila urbanización cerca de Lloret de Mar. A 10 minutos en coche de la playa con piscina y jacuzzi privados.",
+    "services": "3 camas, 2 baños, salón comedor, TV, Wi-Fi, aire acondicionado, cocina equipada, barbacoa, piscina y jacuzzi privado en el jardín."
+  },
+  {
+    "title": "VILLA RAPANUI",
+    "description": "Preciosa Villa con increíbles vistas al mar, capacidad máxima 8 personas. Ubicada en una tranquila urbanización cerca de Lloret de Mar. Consta de 3 plantas, 3 habitaciones, 2 baños, 1 aseo, 1 pequeño gimnasio, piscina privada de 8 x 4 y un increíble jacuzzi climatizado para disfrutar viendo las estrellas. La playa se encuentra a tan solo 10 minutos en coche.",
+    "services": "6 camas, 2 baños, 1 aseo, 1 salón comedor, TV, 1 gimnasio, Wi-Fi, aire acondicionado, cocina equipada, barbacoa, piscina y jacuzzi privado en el jardín."
+  },
+  {
+    "title": "VILLA MAR I CEL",
+    "description": "Magnífica Villa, situada en la preciosa localidad de Tossa de Mar. Ubicada en una prestigiosa urbanización privada, con acceso restringido y vigilancia 24h. Consta de 2 plantas, 3 habitaciones, 2 baños, 1 terraza, jardín, piscina privada y un relajante jacuzzi con unas maravillosas vistas al mar. A 500 metros de la tranquila playa privada de la urbanización.",
+    "services": "6 camas, 2 baños, salón comedor, TV, Wi-Fi, aire acondicionado, cocina equipada, barbacoa, piscina y jacuzzi privado en el jardín."
+  },
+  {
+    "title": "VILLA NEPTUNO",
+    "description": "Maravillosa Villa, situada en la preciosa localidad de Tossa de Mar. Ubicada en paraje idílico junto al mar y rodeado de bosque. Está localizada en una prestigiosa urbanización privada, con acceso restringido y vigilancia 24h. Consta de 2 plantas, 2 habitaciones, 2 baños, 1 terraza/jardín, piscina privada 2x2 y una zona de relax con jacuzzi privado. La tranquila playa privada de la urbanización se encuentra a tan sólo 10 minutos caminando.",
+    "services": "3 camas, 2 baños, salón comedor, TV, Wi-Fi, aire acondicionado, cocina equipada, barbacoa, piscina y jacuzzi privado en la zona exterior."
+  }
+]
