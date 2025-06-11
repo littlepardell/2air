@@ -15,6 +15,10 @@ body {
     --button-bg-color: #007bff;
     --button-text-color: #ffffff;
     --border-color: #eeeeee;
+    --modal-content-bg: #ffffff; /* For modal background */
+    --modal-close-color: #333333;
+    --modal-nav-button-bg: rgba(0,0,0,0.5);
+    --modal-nav-button-color: #ffffff;
 }
 
 body.dark-mode {
@@ -23,6 +27,10 @@ body.dark-mode {
     --card-bg-color: #2c2c2c;
     --button-bg-color: #0056b3;
     --border-color: #444444;
+    --modal-content-bg: #2c2c2c; /* Dark mode modal background */
+    --modal-close-color: #f0f0f0; /* Dark mode close button color */
+    --modal-nav-button-bg: rgba(255,255,255,0.3);
+    --modal-nav-button-color: #1a1a1a;
 }
 
 header {
@@ -72,11 +80,19 @@ header {
     margin-bottom: 10px;
 }
 
-.villa-card .services {
-    font-size: 0.9em;
-    color: var(--text-color); /* Ensure services text is also themed */
-    opacity: 0.8;
+/* General image styling within a villa card - applies to thumbnail */
+.villa-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover; /* Good for thumbnails that might have varied aspect ratios */
 }
+
+.villa-thumbnail-image {
+    cursor: pointer;
+    margin-top: 10px; /* Space above the thumbnail */
+}
+
 
 .whatsapp-button {
     display: inline-block;
@@ -120,25 +136,112 @@ header {
     }
 }
 
-/* Styling for the container of villa images */
-.villa-image-container {
-    display: flex; /* Use flexbox to arrange images */
-    flex-wrap: wrap; /* Allow images to wrap to the next line */
-    gap: 10px; /* Space between images */
-    margin-top: 15px; /* Space above the image container */
+/* Styling for the services section */
+.services-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
-/* Styling for individual villa images */
-.villa-card img {
-    max-width: 100%; /* Make images responsive, not exceeding card width */
-    height: auto;   /* Maintain aspect ratio */
-    border-radius: 8px; /* Slightly rounded corners for images */
-    object-fit: cover; /* Cover the area, cropping if necessary, good for uniform look */
+.services-container h3 { /* Style for the 'Servicios:' title */
+    margin-bottom: 8px;
+    font-size: 1.1em; /* Slightly larger than normal text */
+    font-weight: bold;
+    color: var(--text-color); /* Ensure title color matches theme */
 }
 
-/* Optional: If you want to control the size of images more directly in the flex container */
-.villa-image-container img {
-    flex-basis: calc(50% - 5px); /* Example: Aim for two images per row, adjusting for gap */
-    /* If you want all images to be smaller, you could use a fixed max-width or max-height here too */
-    /* max-height: 200px; */ /* Example to control height */
+.services-list {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0; /* Remove default padding */
+    margin-top: 5px;
+    color: var(--text-color); /* Ensure list text color matches theme */
+}
+
+.services-list li {
+    padding: 4px 0; /* Add some padding to each service item */
+    font-size: 0.95em;
+}
+
+/* Modal Styling */
+#modalOverlay {
+    display: none; /* Hidden by default, shown via JS */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Darker overlay */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modalContent {
+    position: relative;
+    background-color: var(--modal-content-bg);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90vw; /* Max width relative to viewport width */
+    max-height: 90vh; /* Max height relative to viewport height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+#modalImage {
+    max-width: 100%;
+    max-height: calc(90vh - 120px); /* Adjusted to give more space for buttons/padding */
+    object-fit: contain; /* Show full image, maintain aspect ratio */
+    border-radius: 4px; /* Slight rounding for the image itself */
+    margin-bottom: 15px; /* Space between image and nav buttons if they were below */
+}
+
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    color: var(--modal-close-color);
+    cursor: pointer;
+    z-index: 1001; /* Ensure it's above the image */
+}
+
+.modal-close-button:hover {
+    color: #ff0000; /* Make it more obvious on hover */
+}
+
+.modal-prev-button,
+.modal-next-button {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--modal-nav-button-bg);
+    color: var(--modal-nav-button-color);
+    padding: 12px 18px; /* Slightly adjusted padding */
+    font-size: 24px; /* Larger icons */
+    border: none;
+    user-select: none; /* Prevent text selection */
+    border-radius: 5px; /* Rounded corners for buttons */
+    transition: background-color 0.2s;
+    z-index: 1001; /* Ensure they are above the image */
+}
+
+.modal-prev-button {
+    left: 15px;
+}
+
+.modal-next-button {
+    right: 15px;
+}
+
+.modal-prev-button:hover,
+.modal-next-button:hover {
+    background-color: rgba(0,0,0,0.8); /* Darken on hover for light mode */
+}
+
+body.dark-mode .modal-prev-button:hover,
+body.dark-mode .modal-next-button:hover {
+    background-color: rgba(255,255,255,0.5); /* Lighten on hover for dark mode */
 }

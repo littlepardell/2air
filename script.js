@@ -3,8 +3,85 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleButton = document.getElementById('theme-toggle');
     const villaContainer = document.getElementById('villa-container');
 
+    // Modal Variables
+    let modalOverlay, modalContent, modalImage, closeButton, prevButton, nextButton;
+    let currentGalleryImages = [];
+    let currentImageIndex = 0;
+
     // Constants
     const phoneNumber = '34691660921'; // WhatsApp phone number without '+' or spaces
+
+    // Function to create modal elements and attach listeners
+    const createModal = () => {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'modalOverlay';
+        modalOverlay.style.display = 'none'; // Initially hidden
+
+        modalContent = document.createElement('div');
+        modalContent.id = 'modalContent';
+
+        modalImage = document.createElement('img');
+        modalImage.id = 'modalImage';
+
+        closeButton = document.createElement('span');
+        closeButton.className = 'modal-close-button';
+        closeButton.innerHTML = '&times;';
+        closeButton.onclick = () => modalOverlay.style.display = 'none';
+
+        prevButton = document.createElement('button');
+        prevButton.className = 'modal-prev-button';
+        prevButton.innerHTML = '&#10094;';
+        prevButton.onclick = showPrevImage;
+
+        nextButton = document.createElement('button');
+        nextButton.className = 'modal-next-button';
+        nextButton.innerHTML = '&#10095;';
+        nextButton.onclick = showNextImage;
+
+        modalContent.appendChild(closeButton);
+        modalContent.appendChild(modalImage);
+        modalContent.appendChild(prevButton);
+        modalContent.appendChild(nextButton);
+        modalOverlay.appendChild(modalContent);
+
+        // Close modal if overlay (but not content) is clicked
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+
+        document.body.appendChild(modalOverlay);
+    };
+
+    const updateModalImage = () => {
+        if (currentGalleryImages.length > 0) {
+            modalImage.src = currentGalleryImages[currentImageIndex];
+            prevButton.style.display = currentImageIndex === 0 ? 'none' : 'block';
+            nextButton.style.display = currentImageIndex === currentGalleryImages.length - 1 ? 'none' : 'block';
+        }
+    };
+
+    const openModal = (images, startIndex) => {
+        currentGalleryImages = images;
+        currentImageIndex = startIndex;
+        updateModalImage();
+        modalOverlay.style.display = 'flex';
+    };
+
+    const showPrevImage = () => {
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            updateModalImage();
+        }
+    };
+
+    const showNextImage = () => {
+        if (currentImageIndex < currentGalleryImages.length - 1) {
+            currentImageIndex++;
+            updateModalImage();
+        }
+    };
 
     // Function to set the theme and update the toggle button text
     const setTheme = (isDark) => {
@@ -20,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load saved theme from localStorage
     const loadTheme = () => {
         const savedTheme = localStorage.getItem('theme');
-        // If 'dark' is saved, set to dark. Otherwise, default to light.
-        setTheme(savedTheme === 'dark');
+        // If a theme is saved, use it. Otherwise, default to dark mode (true).
+        setTheme(savedTheme ? savedTheme === 'dark' : true);
     };
 
     // Event listener for the theme toggle button
@@ -50,25 +127,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = villa.description;
 
-            // Villa Services
-            const servicesElement = document.createElement('p');
-            servicesElement.className = 'services'; // Apply class for styling
-            servicesElement.textContent = `Servicios: ${villa.services}`; // Use textContent for security
+            // Villa Services - New Structure
+            const servicesContainer = document.createElement('div');
+            servicesContainer.className = 'services-container';
+
+            const servicesTitle = document.createElement('h3');
+            servicesTitle.textContent = 'Servicios:';
+            servicesContainer.appendChild(servicesTitle);
+
+            const servicesList = document.createElement('ul');
+            servicesList.className = 'services-list';
+
+            if (villa.services && typeof villa.services === 'string') {
+                const serviceItems = villa.services.split(',').map(service => service.trim());
+                serviceItems.forEach(itemText => {
+                    if (itemText) { // Avoid creating empty list items
+                        const listItem = document.createElement('li');
+                        listItem.textContent = itemText;
+                        servicesList.appendChild(listItem);
+                    }
+                });
+            }
+            servicesContainer.appendChild(servicesList);
 
             // NO IMAGE ELEMENTS OR PLACEHOLDERS
-
-            // Image Container
-            if (villa.images && villa.images.length > 0) {
-                const imageContainer = document.createElement('div');
-                imageContainer.className = 'villa-image-container';
-                villa.images.forEach(imagePath => {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = imagePath;
-                    imgElement.alt = `Imagen de ${villa.title}`; // More descriptive alt text
-                    imageContainer.appendChild(imgElement);
-                });
-                card.appendChild(imageContainer);
-            }
 
             // WhatsApp Button
             const whatsappButton = document.createElement('a');
@@ -82,7 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Append elements to the card
             card.appendChild(titleElement);
             card.appendChild(descriptionElement);
-            card.appendChild(servicesElement);
+            card.appendChild(servicesContainer); // Append new services container
+
+            // Thumbnail Image for Gallery
+            if (villa.images && villa.images.length > 0) {
+                const thumbnailImage = document.createElement('img');
+                thumbnailImage.src = villa.images[0]; // Display the first image as thumbnail
+                thumbnailImage.alt = `Ver galería de ${villa.title}`;
+                thumbnailImage.className = 'villa-thumbnail-image';
+                thumbnailImage.onclick = () => openModal(villa.images, 0);
+                card.appendChild(thumbnailImage);
+            }
             card.appendChild(whatsappButton);
 
             // Append card to the container
@@ -108,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initial page setup
+    createModal(); // Create modal elements once
     loadTheme(); // Load theme from localStorage
     loadAndDisplayVillas(); // Fetch and display villa data
 });
