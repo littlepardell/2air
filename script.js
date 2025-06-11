@@ -114,21 +114,42 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', !isCurrentlyDark ? 'dark' : 'light');
     });
 
-    // Placeholder Navigation Functions
+    // Navigation Functions
     function navigateToDetailView(villaIndex) {
-        console.log('Navigate to detail view for villa index:', villaIndex);
-        // Actual logic for showing detail view and hiding main view will be in Phase 4
-        // For now, it might involve:
-        // document.getElementById('main-view').classList.remove('active-view');
-        // document.getElementById('detail-view').classList.add('active-view');
-        renderDetailView(villaIndex); // Call the function to render details
+        const mainView = document.getElementById('main-view');
+        const detailView = document.getElementById('detail-view');
+
+        if (mainView && detailView) {
+            mainView.classList.remove('active-view');
+            mainView.style.display = 'none';
+
+            detailView.innerHTML = ''; // Clear previous detail content before rendering new
+            renderDetailView(villaIndex); // Render the new content
+
+            detailView.style.display = 'block'; // Or 'flex' if its content uses flex directly
+            detailView.classList.add('active-view');
+
+            window.scrollTo(0, 0);
+        } else {
+            console.error("One or both view containers not found for detail navigation.");
+        }
     }
 
     function navigateToMainView() {
-        console.log('Navigate to main view');
-        // Actual logic for showing main view and hiding detail view will be in Phase 4
-        // document.getElementById('detail-view').classList.remove('active-view');
-        // document.getElementById('main-view').classList.add('active-view');
+        const mainView = document.getElementById('main-view');
+        const detailView = document.getElementById('detail-view');
+
+        if (mainView && detailView) {
+            detailView.classList.remove('active-view');
+            detailView.style.display = 'none';
+
+            mainView.style.display = 'block'; // Or 'grid' if #main-view itself is the grid
+            mainView.classList.add('active-view');
+
+            window.scrollTo(0, 0);
+        } else {
+            console.error("One or both view containers not found for main navigation.");
+        }
     }
 
     // Function to render the main view with villa cards
@@ -306,26 +327,38 @@ document.addEventListener('DOMContentLoaded', () => {
         contentWrapper.appendChild(whatsappBtn);
     };
 
-    // Async function to fetch villa data and then display it in the main view
-    const loadAndDisplayVillas = async () => {
+    // Application Initialization Function
+    async function initApp() {
+        createModal();
+        loadTheme();
+
         const mainViewContainer = document.getElementById('main-view');
         try {
             const response = await fetch('villas.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            allVillasData = await response.json(); // Store in global array
-            renderMainView(allVillasData); // Render the main view with fetched data
+            allVillasData = await response.json();
+
+            if (allVillasData && allVillasData.length > 0) {
+                renderMainView(allVillasData);
+            } else {
+                if (mainViewContainer) {
+                    mainViewContainer.innerHTML = '<p>No hay villas disponibles en este momento.</p>';
+                }
+            }
         } catch (error) {
             console.error('Error al cargar las villas:', error);
-            if (mainViewContainer) { // Check if container exists before writing error message
+            if (mainViewContainer) {
                 mainViewContainer.innerHTML = '<p>Error al cargar la información de las villas. Por favor, intente más tarde.</p>';
             }
         }
-    };
+        // Ensure main view is active by default (HTML should set this, this is a fallback)
+        // If detail view might be incorrectly shown, explicitly activate main view:
+        // navigateToMainView();
+        // However, CSS should handle initial display via .active-view on #main-view in HTML.
+    }
 
     // Initial page setup
-    createModal(); // Create modal elements once
-    loadTheme(); // Load theme from localStorage
-    loadAndDisplayVillas(); // Fetch and display villa data
+    initApp(); // Initialize the application
 });
