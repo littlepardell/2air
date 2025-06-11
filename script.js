@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const themeToggleButton = document.getElementById('theme-toggle');
-    const villaContainer = document.getElementById('villa-container');
+    // const villaContainer = document.getElementById('villa-container'); // Old container, removed
+
+    // Global Villas Array
+    let allVillasData = [];
 
     // Modal Variables
     let modalOverlay, modalContent, modalImage, closeButton, prevButton, nextButton;
@@ -111,110 +114,213 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', !isCurrentlyDark ? 'dark' : 'light');
     });
 
-    // Function to render villas to the DOM (New Interactive Cover Image Interface)
-    const renderVillas = (villas) => {
-        villaContainer.innerHTML = ''; // Clear any existing content
+    // Placeholder Navigation Functions
+    function navigateToDetailView(villaIndex) {
+        console.log('Navigate to detail view for villa index:', villaIndex);
+        // Actual logic for showing detail view and hiding main view will be in Phase 4
+        // For now, it might involve:
+        // document.getElementById('main-view').classList.remove('active-view');
+        // document.getElementById('detail-view').classList.add('active-view');
+        renderDetailView(villaIndex); // Call the function to render details
+    }
 
-        villas.forEach(villa => {
-            const entry = document.createElement('div');
-            entry.className = 'villa-entry';
+    function navigateToMainView() {
+        console.log('Navigate to main view');
+        // Actual logic for showing main view and hiding detail view will be in Phase 4
+        // document.getElementById('detail-view').classList.remove('active-view');
+        // document.getElementById('main-view').classList.add('active-view');
+    }
 
-            // Cover Image
+    // Function to render the main view with villa cards
+    const renderMainView = (villasData) => {
+        const mainViewContainer = document.getElementById('main-view');
+        if (!mainViewContainer) {
+            console.error('Main view container not found');
+            return;
+        }
+        mainViewContainer.innerHTML = ''; // Clear any existing content
+
+        const grid = document.createElement('div');
+        grid.className = 'villa-grid-airbnb';
+        mainViewContainer.appendChild(grid);
+
+        if (!villasData || villasData.length === 0) {
+            mainViewContainer.innerHTML = '<p>No hay villas disponibles en este momento.</p>';
+            return;
+        }
+
+        villasData.forEach((villa, index) => {
+            const card = document.createElement('div');
+            card.className = 'villa-card-airbnb';
+
+            // Image
             const coverImagePath = (villa.images && villa.images.length > 0)
                                    ? villa.images[0]
-                                   : 'path/to/default/placeholder.jpg'; // Fallback placeholder
-            const coverImage = document.createElement('img');
-            coverImage.className = 'villa-cover-image';
-            coverImage.src = coverImagePath;
-            coverImage.alt = `Cover image of ${villa.title}`;
-            entry.appendChild(coverImage);
+                                   : 'path/to/default/placeholder.jpg'; // Fallback
+            const image = document.createElement('img');
+            image.className = 'card-image-airbnb';
+            image.src = coverImagePath;
+            image.alt = `Cover image of ${villa.title}`;
+            card.appendChild(image);
 
-            // Details Pane (Initially Hidden/Styled by CSS)
-            const detailsPane = document.createElement('div');
-            detailsPane.className = 'villa-details-pane';
+            // Content Wrapper
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'card-content-airbnb';
+            card.appendChild(contentWrapper);
 
             // Title
-            const titleElement = document.createElement('h2');
-            titleElement.textContent = villa.title;
-            detailsPane.appendChild(titleElement);
+            const title = document.createElement('h3');
+            title.className = 'card-title-airbnb';
+            title.textContent = villa.title;
+            contentWrapper.appendChild(title);
 
-            // Description
-            const descriptionElement = document.createElement('p');
-            descriptionElement.textContent = villa.description;
-            detailsPane.appendChild(descriptionElement);
-
-            // Services
-            const servicesContainer = document.createElement('div');
-            servicesContainer.className = 'services-container'; // Use existing class
-            const servicesTitle = document.createElement('h3');
-            servicesTitle.textContent = 'Servicios:';
-            servicesContainer.appendChild(servicesTitle);
-            const servicesList = document.createElement('ul');
-            servicesList.className = 'services-list'; // Use existing class
-            if (villa.services && typeof villa.services === 'string') {
-                const serviceItems = villa.services.split(',').map(service => service.trim());
-                serviceItems.forEach(itemText => {
-                    if (itemText) {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = itemText;
-                        servicesList.appendChild(listItem);
-                    }
-                });
+            // Short Description
+            let shortDescText = villa.description || ""; // Ensure description exists
+            if (shortDescText.length > 100) {
+                shortDescText = shortDescText.substring(0, 97) + '...';
             }
-            servicesContainer.appendChild(servicesList);
-            detailsPane.appendChild(servicesContainer);
+            const shortDesc = document.createElement('p');
+            shortDesc.className = 'card-description-airbnb';
+            shortDesc.textContent = shortDescText;
+            contentWrapper.appendChild(shortDesc);
 
-            // View Gallery Button
-            if (villa.images && villa.images.length > 0) { // Only show if images exist
-                const galleryButton = document.createElement('button');
-                galleryButton.className = 'view-gallery-button button'; // Added 'button' class
-                galleryButton.textContent = 'Ver Galería';
-                galleryButton.onclick = (e) => {
-                    e.stopPropagation(); // Prevent entry click from firing
-                    openModal(villa.images, 0);
-                };
-                detailsPane.appendChild(galleryButton);
-            }
+            // Click Listener for navigation
+            card.addEventListener('click', () => navigateToDetailView(index));
 
-            // WhatsApp Button
-            const whatsappButton = document.createElement('a');
-            whatsappButton.className = 'whatsapp-button button'; // Added 'button' class
-            const message = encodeURIComponent(`Hola, estoy interesado/a en la ${villa.title}.`);
-            whatsappButton.href = `https://wa.me/${phoneNumber}?text=${message}`;
-            whatsappButton.textContent = 'Contactar por WhatsApp';
-            whatsappButton.target = '_blank';
-            whatsappButton.onclick = (e) => {
-                e.stopPropagation(); // Prevent entry click from firing
-            };
-            detailsPane.appendChild(whatsappButton);
-
-            entry.appendChild(detailsPane);
-
-            // Click Interaction for Revealing Details
-            entry.addEventListener('click', () => {
-                // Do not toggle if a button inside detailsPane was clicked
-                // This is handled by e.stopPropagation() on the buttons themselves.
-                entry.classList.toggle('expanded');
-            });
-
-            villaContainer.appendChild(entry);
+            grid.appendChild(card);
         });
     };
 
-    // Async function to fetch villa data and then display it
+    // Function to render the detail view for a selected villa
+    const renderDetailView = (villaIndex) => {
+        const detailViewContainer = document.getElementById('detail-view');
+        if (!detailViewContainer) {
+            console.error('Detail view container not found');
+            return;
+        }
+
+        const villa = allVillasData[villaIndex];
+        if (!villa) {
+            console.error('Villa data not found for index:', villaIndex);
+            detailViewContainer.innerHTML = '<p>Información de la villa no encontrada. Por favor, intente de nuevo.</p>';
+            return;
+        }
+
+        detailViewContainer.innerHTML = ''; // Clear existing content
+
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'detail-content-wrapper'; // For padding/max-width
+        detailViewContainer.appendChild(contentWrapper);
+
+        // Back Button
+        const backButton = document.createElement('button');
+        backButton.className = 'back-button-airbnb button'; // Added 'button' for common styling
+        backButton.textContent = '← Volver al listado';
+        backButton.addEventListener('click', navigateToMainView);
+        contentWrapper.appendChild(backButton);
+
+        // Title
+        const title = document.createElement('h1');
+        title.className = 'detail-title-airbnb';
+        title.textContent = villa.title;
+        contentWrapper.appendChild(title);
+
+        // Image Gallery
+        const galleryContainer = document.createElement('div');
+        galleryContainer.className = 'detail-gallery-airbnb';
+        if (villa.images && villa.images.length > 0) {
+            const imagesToShow = villa.images.slice(0, 5);
+            imagesToShow.forEach((imgPath, idx) => {
+                const imgWrapper = document.createElement('div'); // Wrapper for potential styling
+                imgWrapper.className = 'gallery-image-wrapper';
+                if (idx === 0) {
+                    imgWrapper.classList.add('gallery-image-main');
+                }
+                const img = document.createElement('img');
+                img.src = imgPath;
+                img.alt = `${villa.title} - imagen ${idx + 1}`;
+                img.className = 'gallery-image-airbnb';
+                img.addEventListener('click', () => openModal(villa.images, idx));
+                imgWrapper.appendChild(img);
+                galleryContainer.appendChild(imgWrapper);
+            });
+
+            if (villa.images.length > 5) {
+                const showAllButtonContainer = document.createElement('div');
+                showAllButtonContainer.className = 'show-all-photos-container';
+                const showAllButton = document.createElement('button');
+                showAllButton.className = 'show-all-photos-button button';
+                showAllButton.textContent = `Ver todas las ${villa.images.length} fotos`;
+                showAllButton.addEventListener('click', () => openModal(villa.images, 0));
+                showAllButtonContainer.appendChild(showAllButton);
+                // Append to the last image wrapper or directly to galleryContainer
+                // For simplicity, appending to galleryContainer. CSS can position it.
+                galleryContainer.appendChild(showAllButtonContainer);
+            }
+        } else {
+            const noImageText = document.createElement('p');
+            noImageText.textContent = 'No hay imágenes disponibles.';
+            galleryContainer.appendChild(noImageText);
+        }
+        contentWrapper.appendChild(galleryContainer);
+
+        // Description
+        const description = document.createElement('p');
+        description.className = 'detail-description-airbnb';
+        // Replace newlines with <br> for HTML rendering, ensure description is a string
+        description.innerHTML = (villa.description || "").replace(/\n/g, '<br>');
+        contentWrapper.appendChild(description);
+
+        // Services
+        const servicesSection = document.createElement('div');
+        servicesSection.className = 'detail-services-airbnb';
+        const servicesTitleElement = document.createElement('h3'); // Renamed from servicesTitle to avoid conflict
+        servicesTitleElement.textContent = 'Servicios';
+        servicesSection.appendChild(servicesTitleElement);
+        const servicesList = document.createElement('ul');
+        servicesList.className = 'services-list'; // Reusing class from main card for consistency
+        if (villa.services && typeof villa.services === 'string') {
+            const serviceItems = villa.services.split(',').map(service => service.trim());
+            serviceItems.forEach(itemText => {
+                if (itemText) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = itemText;
+                    servicesList.appendChild(listItem);
+                }
+            });
+        } else {
+            const noServicesItem = document.createElement('li');
+            noServicesItem.textContent = 'No hay servicios detallados.';
+            servicesList.appendChild(noServicesItem);
+        }
+        servicesSection.appendChild(servicesList);
+        contentWrapper.appendChild(servicesSection);
+
+        // WhatsApp Button
+        const whatsappBtn = document.createElement('a');
+        whatsappBtn.className = 'whatsapp-button-airbnb button'; // Added 'button' for common styling
+        const message = encodeURIComponent(`Hola, estoy interesado/a en la ${villa.title}.`);
+        whatsappBtn.href = `https://wa.me/${phoneNumber}?text=${message}`; // phoneNumber is global
+        whatsappBtn.textContent = 'Contactar por WhatsApp';
+        whatsappBtn.target = '_blank';
+        contentWrapper.appendChild(whatsappBtn);
+    };
+
+    // Async function to fetch villa data and then display it in the main view
     const loadAndDisplayVillas = async () => {
+        const mainViewContainer = document.getElementById('main-view');
         try {
             const response = await fetch('villas.json');
             if (!response.ok) {
-                // If response is not OK (e.g., 404, 500), throw an error
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const villas = await response.json();
-            renderVillas(villas); // Call the rendering function with the fetched data
+            allVillasData = await response.json(); // Store in global array
+            renderMainView(allVillasData); // Render the main view with fetched data
         } catch (error) {
             console.error('Error al cargar las villas:', error);
-            // Display an error message in the villa container
-            villaContainer.innerHTML = '<p>Error al cargar la información de las villas. Por favor, intente más tarde.</p>';
+            if (mainViewContainer) { // Check if container exists before writing error message
+                mainViewContainer.innerHTML = '<p>Error al cargar la información de las villas. Por favor, intente más tarde.</p>';
+            }
         }
     };
 
