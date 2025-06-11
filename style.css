@@ -11,11 +11,11 @@ body {
 :root {
     --bg-color: #ffffff;
     --text-color: #333333;
-    --card-bg-color: #f9f9f9;
+    --card-bg-color: #f9f9f9; /* Used for villa-entry and details-pane background */
     --button-bg-color: #007bff;
     --button-text-color: #ffffff;
     --border-color: #eeeeee;
-    --modal-content-bg: #ffffff; /* For modal background */
+    --modal-content-bg: #ffffff;
     --modal-close-color: #333333;
     --modal-nav-button-bg: rgba(0,0,0,0.5);
     --modal-nav-button-color: #ffffff;
@@ -24,11 +24,11 @@ body {
 body.dark-mode {
     --bg-color: #1a1a1a;
     --text-color: #f0f0f0;
-    --card-bg-color: #2c2c2c;
+    --card-bg-color: #2c2c2c; /* Used for villa-entry and details-pane background */
     --button-bg-color: #0056b3;
     --border-color: #444444;
-    --modal-content-bg: #2c2c2c; /* Dark mode modal background */
-    --modal-close-color: #f0f0f0; /* Dark mode close button color */
+    --modal-content-bg: #2c2c2c;
+    --modal-close-color: #f0f0f0;
     --modal-nav-button-bg: rgba(255,255,255,0.3);
     --modal-nav-button-color: #1a1a1a;
 }
@@ -53,123 +53,217 @@ header {
     opacity: 0.9;
 }
 
-/* Villa Card Styles */
+/* New Villa Layout Styles */
 #villa-container {
-    display: grid;
-    grid-template-columns: 1fr; /* Default to 1 column for mobile */
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Space between villa entries */
+    padding: 20px; /* Add some padding to the main container */
 }
 
-.villa-card {
+.villa-entry {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     background-color: var(--card-bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.5s ease-in-out;
+    display: flex; /* For side-by-side layout of image and details */
+    min-height: 400px; /* Minimum height for entries */
 }
 
-.villa-card h2 {
+.villa-cover-image {
+    display: block;
+    width: 100%; /* Initially takes full width before expansion */
+    height: 400px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: width 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.villa-details-pane {
+    position: absolute; /* For overlay or complex positioning, but for side-by-side, this changes */
+    top: 0;
+    right: 0;
+    width: 0; /* Initially hidden */
+    height: 100%;
+    background-color: var(--card-bg-color);
+    padding: 0; /* No padding when hidden */
+    overflow-y: auto;
+    transition: width 0.5s ease-in-out, padding 0.5s ease-in-out, opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    box-sizing: border-box;
+    color: var(--text-color);
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+}
+
+.villa-entry.expanded {
+    /* Optional: slightly increase size or add more shadow when expanded */
+    /* transform: scale(1.01); */
+}
+
+.villa-entry.expanded .villa-cover-image {
+    width: 55%; /* Cover image takes part of the width */
+}
+
+.villa-entry.expanded .villa-details-pane {
+    width: 45%; /* Details pane takes the rest */
+    padding: 30px; /* Add padding when visible */
+    opacity: 1;
+    visibility: visible;
+    border-left: 1px solid var(--border-color); /* Separator */
+}
+
+/* Styling within Details Pane */
+.villa-details-pane h2 {
     margin-top: 0;
-    font-size: 1.5em;
+    font-size: 1.8em;
     color: var(--text-color);
 }
 
-.villa-card p {
+.villa-details-pane p { /* For description */
     font-size: 1em;
     line-height: 1.6;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    color: var(--text-color);
 }
 
-/* General image styling within a villa card - applies to thumbnail */
-.villa-card img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover; /* Good for thumbnails that might have varied aspect ratios */
-}
-
-.villa-thumbnail-image {
-    cursor: pointer;
-    margin-top: 10px; /* Space above the thumbnail */
-}
-
-
-.whatsapp-button {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #25D366; /* WhatsApp Green */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.whatsapp-button:hover {
-    background-color: #1DAE50; /* Darker WhatsApp Green */
-}
-
-
-/* Responsive Design */
-/* Tablets */
-@media (min-width: 768px) {
-    #villa-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
-    }
-}
-
-/* Desktops */
-@media (min-width: 1024px) {
-    #villa-container {
-        grid-template-columns: repeat(3, 1fr); /* 3 columns for desktops */
-    }
-    body {
-        padding: 40px;
-    }
-}
-
-/* Wider Desktops */
-@media (min-width: 1440px) {
-    #villa-container {
-        grid-template-columns: repeat(4, 1fr); /* 4 columns for wider desktops */
-    }
-}
-
-/* Styling for the services section */
+/* Services styling (reused classes) */
 .services-container {
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 15px; /* More space before buttons */
 }
 
-.services-container h3 { /* Style for the 'Servicios:' title */
+.services-container h3 {
     margin-bottom: 8px;
-    font-size: 1.1em; /* Slightly larger than normal text */
+    font-size: 1.2em; /* Slightly more prominent */
     font-weight: bold;
-    color: var(--text-color); /* Ensure title color matches theme */
+    color: var(--text-color);
 }
 
 .services-list {
-    list-style-type: none; /* Remove default bullets */
-    padding-left: 0; /* Remove default padding */
+    list-style-type: none;
+    padding-left: 0;
     margin-top: 5px;
-    color: var(--text-color); /* Ensure list text color matches theme */
+    color: var(--text-color);
 }
 
 .services-list li {
-    padding: 4px 0; /* Add some padding to each service item */
+    padding: 5px 0; /* Slightly more padding */
     font-size: 0.95em;
 }
 
-/* Modal Styling */
+/* Common button styling */
+.button {
+    display: inline-block;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
+    margin-right: 10px;
+    transition: background-color 0.2s, opacity 0.2s;
+    font-size: 0.95em;
+}
+
+.button:last-child {
+    margin-right: 0;
+}
+
+.view-gallery-button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+}
+
+.view-gallery-button:hover {
+    opacity: 0.85;
+}
+
+.whatsapp-button { /* Specific styling for WhatsApp button */
+    background-color: #25D366;
+    color: white;
+}
+
+.whatsapp-button:hover {
+    background-color: #1DAE50;
+}
+
+
+/* Responsive Design Adjustments */
+@media (max-width: 900px) { /* More aggressive breakpoint for side-by-side */
+    .villa-entry {
+        flex-direction: column; /* Stack image and details vertically */
+    }
+
+    .villa-entry.expanded .villa-cover-image,
+    .villa-cover-image {
+        width: 100%; /* Cover image always full width */
+        height: 300px; /* Adjust height */
+    }
+
+    .villa-entry.expanded .villa-details-pane {
+        width: 100%;
+        height: auto; /* Auto height based on content */
+        position: relative; /* Stack normally */
+        border-left: none;
+        border-top: 1px solid var(--border-color); /* Separator on top */
+        opacity: 1; /* Ensure it's visible */
+        visibility: visible; /* Ensure it's visible */
+        padding: 20px; /* Adjust padding */
+        /* max-height: none; Remove max-height or adjust */
+    }
+
+    /* If details pane is not expanded, it should be hidden */
+    .villa-details-pane {
+        width: 100%; /* Full width for stacking */
+        height: 0; /* Hidden when not expanded */
+        padding: 0 20px; /* Horizontal padding for when it expands */
+        overflow: hidden; /* Hide content when height is 0 */
+        opacity: 0;
+        visibility: hidden;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .villa-entry.expanded .villa-details-pane {
+        height: auto; /* Auto height when expanded */
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 480px) { /* Mobile specific */
+    #villa-container {
+        padding: 10px;
+        gap: 20px;
+    }
+    .villa-cover-image,
+    .villa-entry.expanded .villa-cover-image {
+        height: 250px; /* Further reduce image height */
+    }
+    .villa-details-pane,
+    .villa-entry.expanded .villa-details-pane {
+        padding: 15px; /* Reduce padding */
+    }
+    .button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Modal Styling (remains largely unchanged) */
 #modalOverlay {
-    display: none; /* Hidden by default, shown via JS */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Darker overlay */
+    background-color: rgba(0, 0, 0, 0.85);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -180,8 +274,8 @@ header {
     background-color: var(--modal-content-bg);
     padding: 20px;
     border-radius: 8px;
-    max-width: 90vw; /* Max width relative to viewport width */
-    max-height: 90vh; /* Max height relative to viewport height */
+    max-width: 90vw;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -190,10 +284,10 @@ header {
 
 #modalImage {
     max-width: 100%;
-    max-height: calc(90vh - 120px); /* Adjusted to give more space for buttons/padding */
-    object-fit: contain; /* Show full image, maintain aspect ratio */
-    border-radius: 4px; /* Slight rounding for the image itself */
-    margin-bottom: 15px; /* Space between image and nav buttons if they were below */
+    max-height: calc(90vh - 120px);
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 15px;
 }
 
 .modal-close-button {
@@ -204,11 +298,11 @@ header {
     font-weight: bold;
     color: var(--modal-close-color);
     cursor: pointer;
-    z-index: 1001; /* Ensure it's above the image */
+    z-index: 1001;
 }
 
 .modal-close-button:hover {
-    color: #ff0000; /* Make it more obvious on hover */
+    color: #ff0000;
 }
 
 .modal-prev-button,
@@ -219,13 +313,13 @@ header {
     transform: translateY(-50%);
     background-color: var(--modal-nav-button-bg);
     color: var(--modal-nav-button-color);
-    padding: 12px 18px; /* Slightly adjusted padding */
-    font-size: 24px; /* Larger icons */
+    padding: 12px 18px;
+    font-size: 24px;
     border: none;
-    user-select: none; /* Prevent text selection */
-    border-radius: 5px; /* Rounded corners for buttons */
+    user-select: none;
+    border-radius: 5px;
     transition: background-color 0.2s;
-    z-index: 1001; /* Ensure they are above the image */
+    z-index: 1001;
 }
 
 .modal-prev-button {
@@ -238,10 +332,10 @@ header {
 
 .modal-prev-button:hover,
 .modal-next-button:hover {
-    background-color: rgba(0,0,0,0.8); /* Darken on hover for light mode */
+    background-color: rgba(0,0,0,0.8);
 }
 
 body.dark-mode .modal-prev-button:hover,
 body.dark-mode .modal-next-button:hover {
-    background-color: rgba(255,255,255,0.5); /* Lighten on hover for dark mode */
+    background-color: rgba(255,255,255,0.5);
 }

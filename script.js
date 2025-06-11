@@ -111,37 +111,50 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', !isCurrentlyDark ? 'dark' : 'light');
     });
 
-    // Function to render villas to the DOM
+    // Function to render villas to the DOM (New Interactive Cover Image Interface)
     const renderVillas = (villas) => {
-        villaContainer.innerHTML = ''; // Clear any existing content (e.g., loading message)
+        villaContainer.innerHTML = ''; // Clear any existing content
 
         villas.forEach(villa => {
-            const card = document.createElement('div');
-            card.className = 'villa-card'; // Use className for setting a single class
+            const entry = document.createElement('div');
+            entry.className = 'villa-entry';
 
-            // Villa Title
+            // Cover Image
+            const coverImagePath = (villa.images && villa.images.length > 0)
+                                   ? villa.images[0]
+                                   : 'path/to/default/placeholder.jpg'; // Fallback placeholder
+            const coverImage = document.createElement('img');
+            coverImage.className = 'villa-cover-image';
+            coverImage.src = coverImagePath;
+            coverImage.alt = `Cover image of ${villa.title}`;
+            entry.appendChild(coverImage);
+
+            // Details Pane (Initially Hidden/Styled by CSS)
+            const detailsPane = document.createElement('div');
+            detailsPane.className = 'villa-details-pane';
+
+            // Title
             const titleElement = document.createElement('h2');
             titleElement.textContent = villa.title;
+            detailsPane.appendChild(titleElement);
 
-            // Villa Description
+            // Description
             const descriptionElement = document.createElement('p');
             descriptionElement.textContent = villa.description;
+            detailsPane.appendChild(descriptionElement);
 
-            // Villa Services - New Structure
+            // Services
             const servicesContainer = document.createElement('div');
-            servicesContainer.className = 'services-container';
-
+            servicesContainer.className = 'services-container'; // Use existing class
             const servicesTitle = document.createElement('h3');
             servicesTitle.textContent = 'Servicios:';
             servicesContainer.appendChild(servicesTitle);
-
             const servicesList = document.createElement('ul');
-            servicesList.className = 'services-list';
-
+            servicesList.className = 'services-list'; // Use existing class
             if (villa.services && typeof villa.services === 'string') {
                 const serviceItems = villa.services.split(',').map(service => service.trim());
                 serviceItems.forEach(itemText => {
-                    if (itemText) { // Avoid creating empty list items
+                    if (itemText) {
                         const listItem = document.createElement('li');
                         listItem.textContent = itemText;
                         servicesList.appendChild(listItem);
@@ -149,36 +162,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             servicesContainer.appendChild(servicesList);
+            detailsPane.appendChild(servicesContainer);
 
-            // NO IMAGE ELEMENTS OR PLACEHOLDERS
+            // View Gallery Button
+            if (villa.images && villa.images.length > 0) { // Only show if images exist
+                const galleryButton = document.createElement('button');
+                galleryButton.className = 'view-gallery-button button'; // Added 'button' class
+                galleryButton.textContent = 'Ver Galería';
+                galleryButton.onclick = (e) => {
+                    e.stopPropagation(); // Prevent entry click from firing
+                    openModal(villa.images, 0);
+                };
+                detailsPane.appendChild(galleryButton);
+            }
 
             // WhatsApp Button
             const whatsappButton = document.createElement('a');
-            whatsappButton.className = 'whatsapp-button';
-            // Construct the WhatsApp message
+            whatsappButton.className = 'whatsapp-button button'; // Added 'button' class
             const message = encodeURIComponent(`Hola, estoy interesado/a en la ${villa.title}.`);
             whatsappButton.href = `https://wa.me/${phoneNumber}?text=${message}`;
             whatsappButton.textContent = 'Contactar por WhatsApp';
-            whatsappButton.target = '_blank'; // Open link in a new tab
+            whatsappButton.target = '_blank';
+            whatsappButton.onclick = (e) => {
+                e.stopPropagation(); // Prevent entry click from firing
+            };
+            detailsPane.appendChild(whatsappButton);
 
-            // Append elements to the card
-            card.appendChild(titleElement);
-            card.appendChild(descriptionElement);
-            card.appendChild(servicesContainer); // Append new services container
+            entry.appendChild(detailsPane);
 
-            // Thumbnail Image for Gallery
-            if (villa.images && villa.images.length > 0) {
-                const thumbnailImage = document.createElement('img');
-                thumbnailImage.src = villa.images[0]; // Display the first image as thumbnail
-                thumbnailImage.alt = `Ver galería de ${villa.title}`;
-                thumbnailImage.className = 'villa-thumbnail-image';
-                thumbnailImage.onclick = () => openModal(villa.images, 0);
-                card.appendChild(thumbnailImage);
-            }
-            card.appendChild(whatsappButton);
+            // Click Interaction for Revealing Details
+            entry.addEventListener('click', () => {
+                // Do not toggle if a button inside detailsPane was clicked
+                // This is handled by e.stopPropagation() on the buttons themselves.
+                entry.classList.toggle('expanded');
+            });
 
-            // Append card to the container
-            villaContainer.appendChild(card);
+            villaContainer.appendChild(entry);
         });
     };
 
